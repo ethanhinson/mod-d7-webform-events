@@ -1,0 +1,33 @@
+<?php
+/**
+ * Implements hook_webform_submission_presave
+ */
+function webform_events_webform_submission_presave($node, &$submission) {
+  if(module_exists('googleanalytics')) {
+    require(drupal_get_path('module', 'webform_events') . '/inc/universal-analytics-php.php');
+    $acct = variable_get('googleanalytics_account', '');
+    if(class_exists('Tracker') && $acct !== '') {
+      $tracker = new Tracker($acct);
+      $label = _webform_events_build_label($node->webform['components'], $submission->data);
+      $tracker->send('event', array(
+        'eventAction' => $node->title,
+        'eventLabel' => $label,
+        'eventCategory' => 'Webform Submission'
+      ));
+    }
+  }
+}
+
+/**
+ * Helper for concatenating labels together
+ * @param $components
+ * @param $values
+ * @return string
+ */
+function _webform_events_build_label($components, $values) {
+  $label = array();
+  foreach($components as $c) {
+    $label[] = $c['name'] . ': ' . strip_tags($values[$c['cid']][0]);
+  }
+  return implode(', ', $label);
+}

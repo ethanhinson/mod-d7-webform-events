@@ -1,0 +1,4 @@
+name = Webform Submission Events
+description = This module provides event tracking for webform subsmissions using Universal Analytics
+core = 7.x
+dependencies[] = googleanalytics
